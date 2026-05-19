@@ -1,9 +1,10 @@
 package Proyecto.Virtual_Pet.controller;
+
 import Proyecto.Virtual_Pet.model.entity.Producto;
+import Proyecto.Virtual_Pet.model.entity.ProductoDTO;
 import Proyecto.Virtual_Pet.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -19,10 +20,16 @@ public class ProductoController {
         return productoService.guardar(producto);
     }
 
-    // ✅ Obtener todos
+    // ✅ Obtener todos (entidad completa)
     @GetMapping
     public List<Producto> obtenerProductos() {
         return productoService.listar();
+    }
+
+    // ✅ Obtener todos como DTO (solo campos necesarios)
+    @GetMapping("/dto")
+    public List<ProductoDTO> obtenerProductosDTO() {
+        return productoService.listarDTO();
     }
 
     // ✅ Obtener por ID

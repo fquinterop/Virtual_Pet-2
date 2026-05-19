@@ -1,40 +1,50 @@
 package Proyecto.Virtual_Pet.model.entity;
 
-import Proyecto.Virtual_Pet.model.enums.EstadoPedido;
 import jakarta.persistence.*;
+import lombok.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "pedidos")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Pedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "cliente_id")
-    private Cliente cliente;
+    private String numeroPedido;
+    private String clienteNombre;
+    private String clienteEmail;
+    private String clienteTelefono;
+    private String clienteDireccion;
+    private String clienteCiudad;
 
-    @ManyToOne
-    @JoinColumn(name = "producto_id")
-    private Producto producto;
+    @Builder.Default
+    private String estado = "PENDIENTE";
 
-    private int cantidad;
+    @Column(precision = 12, scale = 2)
+    private BigDecimal total;
 
-    @Enumerated(EnumType.STRING)
-    private EstadoPedido estado;
+    private String guiaEnvio;
+    private String observaciones;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    @Column(updatable = false)
+    private LocalDateTime creadoEn;
+    private LocalDateTime actualizadoEn;
 
-    public Cliente getCliente() { return cliente; }
-    public void setCliente(Cliente cliente) { this.cliente = cliente; }
+    @PrePersist
+    protected void onCreate() {
+        creadoEn = LocalDateTime.now();
+        actualizadoEn = LocalDateTime.now();
+    }
 
-    public Producto getProducto() { return producto; }
-    public void setProducto(Producto producto) { this.producto = producto; }
-
-    public int getCantidad() { return cantidad; }
-    public void setCantidad(int cantidad) { this.cantidad = cantidad; }
-
-    public EstadoPedido getEstado() { return estado; }
-    public void setEstado(EstadoPedido estado) { this.estado = estado; }
+    @PreUpdate
+    protected void onUpdate() {
+        actualizadoEn = LocalDateTime.now();
+    }
 }

@@ -1,49 +1,45 @@
 package Proyecto.Virtual_Pet.model.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "clientes")
+@Table(name = "admin_usuarios")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Cliente {
+public class AdminUsuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Nombre requerido")
+    @Column(unique = true, nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
     private String nombre;
 
-    @Email(message = "Email inválido")
-    @NotBlank(message = "Email requerido")
-    @Column(unique = true)
     private String email;
 
-    private String telefono;
-    private String direccion;
-    private String ciudad;
+    // "SUPER_ADMIN", "ADMIN", "OPERADOR"
+    @Column(nullable = false)
+    @Builder.Default
+    private String rol = "OPERADOR";
 
     @Builder.Default
     private Boolean activo = true;
 
     @Column(updatable = false)
     private LocalDateTime creadoEn;
-    private LocalDateTime actualizadoEn;
 
     @PrePersist
     protected void onCreate() {
         creadoEn = LocalDateTime.now();
-        actualizadoEn = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        actualizadoEn = LocalDateTime.now();
     }
 }

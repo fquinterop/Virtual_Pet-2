@@ -1,32 +1,62 @@
 package Proyecto.Virtual_Pet.model.entity;
 
-import Proyecto.Virtual_Pet.model.embeddable.UbicacionProducto;
 import jakarta.persistence.*;
+import lombok.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "productos")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Producto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String nombre;
 
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "ciudad",        column = @Column(name = "ubicacion_ciudad")),
-        @AttributeOverride(name = "direccion",     column = @Column(name = "ubicacion_direccion")),
-        @AttributeOverride(name = "sector",        column = @Column(name = "ubicacion_sector")),
-        @AttributeOverride(name = "tipoUbicacion", column = @Column(name = "ubicacion_tipo"))
-    })
-    private UbicacionProducto ubicacion;
+    @Column(columnDefinition = "TEXT")
+    private String descripcion;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    private String marca;
+    private String categoria;
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    @Builder.Default
+    private String especie = "AMBOS";
 
-    public UbicacionProducto getUbicacion() { return ubicacion; }
-    public void setUbicacion(UbicacionProducto ubicacion) { this.ubicacion = ubicacion; }
+    @Column(precision = 12, scale = 2)
+    private BigDecimal precio;
+
+    @Builder.Default
+    private Integer stock = 0;
+
+    private String presentaciones;
+    private String referencia;
+    private String imagenUrl;
+
+    @Builder.Default
+    private Boolean activo = true;
+
+    @Builder.Default
+    private String disponibilidad = "DISPONIBLE";
+
+    @Column(updatable = false)
+    private LocalDateTime creadoEn;
+    private LocalDateTime actualizadoEn;
+
+    @PrePersist
+    protected void onCreate() {
+        creadoEn = LocalDateTime.now();
+        actualizadoEn = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        actualizadoEn = LocalDateTime.now();
+    }
 }
