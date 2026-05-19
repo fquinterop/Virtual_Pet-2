@@ -1,11 +1,11 @@
 package Proyecto.Virtual_Pet.service;
 
 import Proyecto.Virtual_Pet.model.entity.Pedido;
-import Proyecto.Virtual_Pet.model.enums.EstadoPedido;
 import Proyecto.Virtual_Pet.repository.PedidoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -15,9 +15,8 @@ public class PedidoService {
     private PedidoRepository pedidoRepository;
 
     public Pedido guardar(Pedido pedido) {
-        if (pedido.getEstado() == null) {
-            pedido.setEstado(EstadoPedido.PENDIENTE);
-        }
+        pedido.setNumeroPedido(generarNumeroPedido());
+        pedido.setEstado("PENDIENTE");
         return pedidoRepository.save(pedido);
     }
 
@@ -26,32 +25,44 @@ public class PedidoService {
     }
 
     public Pedido buscarPorId(Long id) {
-        return pedidoRepository.findById(id).orElse(null);
+        return pedidoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado: " + id));
     }
 
     public List<Pedido> buscarPorCliente(Long clienteId) {
-        return pedidoRepository.findByClienteId(clienteId);
+        return pedidoRepository.findAll().stream()
+                .filter(p -> p.getId().equals(clienteId))
+                .toList();
     }
 
-    public List<Pedido> buscarPorEstado(EstadoPedido estado) {
+    public List<Pedido> buscarPorEstado(String estado) {
         return pedidoRepository.findByEstado(estado);
+    }
+
+    public Pedido cambiarEstado(Long id, String estado) {
+        Pedido pedido = buscarPorId(id);
+        pedido.setEstado(estado);
+        return pedidoRepository.save(pedido);
+    }
+
+    public Pedido actualizar(Long id, Pedido datos) {
+        Pedido pedido = buscarPorId(id);
+        pedido.setClienteNombre(datos.getClienteNombre());
+        pedido.setClienteEmail(datos.getClienteEmail());
+        pedido.setClienteTelefono(datos.getClienteTelefono());
+        pedido.setClienteDireccion(datos.getClienteDireccion());
+        pedido.setClienteCiudad(datos.getClienteCiudad());
+        pedido.setTotal(datos.getTotal());
+        return pedidoRepository.save(pedido);
     }
 
     public void eliminar(Long id) {
         pedidoRepository.deleteById(id);
     }
 
-    public Pedido actualizar(Long id, Pedido pedido) {
-        pedido.setId(id);
-        return pedidoRepository.save(pedido);
-    }
-
-    public Pedido cambiarEstado(Long id, EstadoPedido nuevoEstado) {
-        Pedido pedido = pedidoRepository.findById(id).orElse(null);
-        if (pedido != null) {
-            pedido.setEstado(nuevoEstado);
-            return pedidoRepository.save(pedido);
-        }
-        return null;
+    private String generarNumeroPedido() {
+        String fecha = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        long total = pedidoRepository.count() + 1;
+        return String.format("VP-%s-%04d", fecha, total);
     }
 }
